@@ -6,3 +6,5 @@ database/database.sqlite
 node_modules
 tests
 vendor
+public/build
+public/hot
