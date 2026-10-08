@@ -5,6 +5,17 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ScanController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('/_debug-ssl', function () {
+    $p = base_path('certs/aiven-ca.pem');
+    return [
+        'exists'  => file_exists($p),
+        'size'    => file_exists($p) ? filesize($p) : null,
+        'head'    => file_exists($p) ? substr(file_get_contents($p), 0, 27) : null,
+        'options' => array_keys(config('database.connections.mysql.options') ?? []),
+    ];
+});
+
 Route::prefix('auth')->group(function () {
     Route::post('google', [AuthController::class, 'google'])->middleware('throttle:10,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1'); // admin
