@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ScanController;
+use App\Http\Controllers\Api\PaketController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -24,7 +25,7 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/me', [AuthController::class, 'me']);
     Route::post('auth/logout', [AuthController::class, 'logout']);
-
+    Route::get('paket', [PaketController::class, 'index']);
     // Khusus pengguna
     Route::middleware('role:pengguna')->group(function () {
         Route::get('profile', [ProfileController::class, 'show']);
@@ -39,3 +40,4 @@ Route::middleware('auth:sanctum')->group(function () {
     // Khusus admin (diisi nanti, file terpisah supaya tidak bentrok)
     Route::prefix('admin')->middleware('role:admin')->group(base_path('routes/admin.php'));
 });
+

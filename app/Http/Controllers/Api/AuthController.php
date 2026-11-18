@@ -39,8 +39,8 @@ class AuthController extends Controller
         }
 
         $user = User::where('google_id', $payload['sub'])
-            ->orWhere('email', $payload['email'])
-            ->first();
+        ->orWhere('email', $payload['email'])
+        ->first();
 
         // Admin tidak boleh login lewat Google
         if ($user && $user->role !== Role::Pengguna) {
@@ -83,7 +83,16 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+        $aktif = $user->isPremiumActive();
+
+        return response()->json(array_merge($user->toArray(), [
+            'premium_aktif' => $aktif,
+            'premium_until' => $aktif ? $user->premium_until?->toIso8601String() : null,
+            'sisa_hari' => ($aktif && $user->premium_until)
+            ? max(0, (int) ceil(($user->premium_until->getTimestamp() - now()->getTimestamp()) / 86400))
+            : null,
+        ]));
     }
 
     public function logout(Request $request)

@@ -26,6 +26,7 @@ class User extends Authenticatable
             'role' => Role::class,
             'scan_limit' => 'integer',
             'is_premium' => 'boolean',
+            'premium_until' => 'datetime',
         ];
     }
 
@@ -36,13 +37,13 @@ class User extends Authenticatable
 
     public function canScan(): bool
     {
-        return $this->is_premium || $this->scanUsed() < $this->scan_limit;
+        return $this->isPremiumActive() || $this->scanUsed() < $this->scan_limit;
     }
 
 // null = tak terbatas
     public function scanRemaining(): ?int
     {
-        if ($this->is_premium) {
+        if ($this->isPremiumActive()) {
             return null;
         }
 
@@ -57,5 +58,22 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === Role::Admin;
+    }
+
+    public function transaksi(): HasMany
+    {
+        return $this->hasMany(Transaksi::class);
+    }
+
+    public function isPremiumActive(): bool
+    {
+        return $this->is_premium
+        && ($this->premium_until === null || $this->premium_until->isFuture());
+    }
+
+    public function scopePremiumAktif($query)
+    {
+        return $query->where('is_premium', true)
+        ->where(fn ($w) => $w->whereNull('premium_until')->orWhere('premium_until', '>', now()));
     }
 }
